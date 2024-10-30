@@ -3,20 +3,24 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package aplikasipenghitungumur;
-
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 /**
  *
  * @author USER
  */
-public class PenghitungUmur extends javax.swing.JFrame {
-
+public class PenghitungUmurFrame extends javax.swing.JFrame {
+    private PenghitungUmurHelper helper;
     /**
      * Creates new form PenghitungUmur
-     */
-    public PenghitungUmur() {
+     */    
+    public PenghitungUmurFrame() {
         initComponents();
+        helper = new PenghitungUmurHelper();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -35,10 +39,10 @@ public class PenghitungUmur extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        c = new javax.swing.JTextField();
+        txtumur = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jCalendarComboBox1 = new de.wannawork.jcalendar.JCalendarComboBox();
-        jTextField1 = new javax.swing.JTextField();
+        txtHariUlangTahunBerikutnya = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -79,13 +83,13 @@ public class PenghitungUmur extends javax.swing.JFrame {
         gridBagConstraints.gridy = 2;
         jPanel2.add(jLabel5, gridBagConstraints);
 
-        c.setEditable(false);
+        txtumur.setEditable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel2.add(c, gridBagConstraints);
+        jPanel2.add(txtumur, gridBagConstraints);
 
         jButton3.setText("Keluar");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -97,6 +101,12 @@ public class PenghitungUmur extends javax.swing.JFrame {
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         jPanel2.add(jButton3, gridBagConstraints);
+
+        jCalendarComboBox1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jCalendarComboBox1PropertyChange(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -104,13 +114,13 @@ public class PenghitungUmur extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(jCalendarComboBox1, gridBagConstraints);
 
-        jTextField1.setText("jTextField1");
+        txtHariUlangTahunBerikutnya.setText("jTextField1");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel2.add(jTextField1, gridBagConstraints);
+        jPanel2.add(txtHariUlangTahunBerikutnya, gridBagConstraints);
 
         getContentPane().add(jPanel2, java.awt.BorderLayout.CENTER);
 
@@ -118,23 +128,35 @@ public class PenghitungUmur extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        try {
+    Date tanggalLahir = jCalendarComboBox1.getDate();
+if (tanggalLahir != null) {
+// Menghitung umur dan hari ulang tahun berikutnya
+LocalDate lahir =
+tanggalLahir.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+LocalDate sekarang = LocalDate.now();
+String umur = helper.hitungUmurDetail(lahir, sekarang);
+txtumur.setText(umur);
+// Menghitung tanggal ulang tahun berikutnya
+LocalDate ulangTahunBerikutnya =helper.hariUlangTahunBerikutnya(lahir, sekarang);
+String hariUlangTahunBerikutnya =helper.getDayOfWeekInIndonesian(ulangTahunBerikutnya);
 
-            int Angka1 = Integer.parseInt(a.getText());
-            int Angka2 = Integer.parseInt(b.getText());
-            int hasil = Angka1 + Angka2;
-            c.setText(String.valueOf(hasil));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "isi denganAngka", "Error", 1);
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        }
+String tanggalUlangTahunBerikutnya =ulangTahunBerikutnya.format(formatter);
+txtHariUlangTahunBerikutnya.setText(hariUlangTahunBerikutnya + "(" + tanggalUlangTahunBerikutnya + ")");
+}
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        System.exit(0);        // TODO add your handling code here:
+            System.exit(0);        // TODO add your handling code here:
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jCalendarComboBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jCalendarComboBox1PropertyChange
+        txtumur.setText("");
+        txtHariUlangTahunBerikutnya.setText("");        // TODO add your handling code here:
+    }//GEN-LAST:event_jCalendarComboBox1PropertyChange
 
     /**
      * @param args the command line arguments
@@ -153,26 +175,26 @@ public class PenghitungUmur extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PenghitungUmur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PenghitungUmurFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PenghitungUmur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PenghitungUmurFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PenghitungUmur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PenghitungUmurFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PenghitungUmur.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(PenghitungUmurFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new PenghitungUmur().setVisible(true);
+                new PenghitungUmurFrame().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField c;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private de.wannawork.jcalendar.JCalendarComboBox jCalendarComboBox1;
@@ -182,7 +204,8 @@ public class PenghitungUmur extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField jTextField1;
     private de.wannawork.jcalendar.LocaleStrings localeStrings1;
+    private javax.swing.JTextField txtHariUlangTahunBerikutnya;
+    private javax.swing.JTextField txtumur;
     // End of variables declaration//GEN-END:variables
 }
