@@ -13,12 +13,15 @@ import java.util.Date;
  */
 public class PenghitungUmurFrame extends javax.swing.JFrame {
     private PenghitungUmurHelper helper;
+    private volatile boolean stopFetching = false;
+    private Thread peristiwaThread;
     /**
      * Creates new form PenghitungUmur
      */    
     public PenghitungUmurFrame() {
         initComponents();
         helper = new PenghitungUmurHelper();
+        
     }
     
     /**
@@ -43,13 +46,16 @@ public class PenghitungUmurFrame extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jCalendarComboBox1 = new de.wannawork.jcalendar.JCalendarComboBox();
         txtHariUlangTahunBerikutnya = new javax.swing.JTextField();
+        jPanel3 = new javax.swing.JPanel();
+        txtAreaPeristiwa = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Aplikasi Penghitung Umur");
 
         jPanel1.setBackground(new java.awt.Color(0, 204, 102));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel1.setText("Penjumlahan");
+        jLabel1.setText("Aplikasi Penghitung Umur");
         jPanel1.add(jLabel1);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
@@ -63,7 +69,7 @@ public class PenghitungUmurFrame extends javax.swing.JFrame {
         jLabel3.setText("Hari Ulang Thun Berikutnya");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         jPanel2.add(jLabel3, gridBagConstraints);
 
         jButton1.setText("Hitung");
@@ -80,13 +86,13 @@ public class PenghitungUmurFrame extends javax.swing.JFrame {
         jLabel5.setText("Umur");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         jPanel2.add(jLabel5, gridBagConstraints);
 
         txtumur.setEditable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(txtumur, gridBagConstraints);
@@ -107,6 +113,11 @@ public class PenghitungUmurFrame extends javax.swing.JFrame {
                 jCalendarComboBox1PropertyChange(evt);
             }
         });
+        jCalendarComboBox1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jCalendarComboBox1KeyTyped(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -114,37 +125,90 @@ public class PenghitungUmurFrame extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(jCalendarComboBox1, gridBagConstraints);
 
-        txtHariUlangTahunBerikutnya.setText("jTextField1");
+        txtHariUlangTahunBerikutnya.setEditable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel2.add(txtHariUlangTahunBerikutnya, gridBagConstraints);
 
         getContentPane().add(jPanel2, java.awt.BorderLayout.CENTER);
 
+        jPanel3.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        txtAreaPeristiwa.setEditable(false);
+        txtAreaPeristiwa.setColumns(20);
+        txtAreaPeristiwa.setFont(new java.awt.Font("Segoe UI", 0, 10)); // NOI18N
+        txtAreaPeristiwa.setRows(20);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(txtAreaPeristiwa, javax.swing.GroupLayout.PREFERRED_SIZE, 931, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(txtAreaPeristiwa, javax.swing.GroupLayout.PREFERRED_SIZE, 391, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 6, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanel3, java.awt.BorderLayout.PAGE_END);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    Date tanggalLahir = jCalendarComboBox1.getDate();
-if (tanggalLahir != null) {
-// Menghitung umur dan hari ulang tahun berikutnya
-LocalDate lahir =
-tanggalLahir.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-LocalDate sekarang = LocalDate.now();
-String umur = helper.hitungUmurDetail(lahir, sekarang);
-txtumur.setText(umur);
-// Menghitung tanggal ulang tahun berikutnya
-LocalDate ulangTahunBerikutnya =helper.hariUlangTahunBerikutnya(lahir, sekarang);
-String hariUlangTahunBerikutnya =helper.getDayOfWeekInIndonesian(ulangTahunBerikutnya);
+        // Set stop flag untuk thread sebelumnya
 
-DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+Date tanggalLahir = jCalendarComboBox1.getDate();
+        if (tanggalLahir != null) {
+            // Menghitung umur dan hari ulang tahun berikutnya
+            LocalDate lahir = tanggalLahir.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate sekarang = LocalDate.now();
+            String umur = helper.hitungUmurDetail(lahir, sekarang);
+            txtumur.setText(umur);
+            // Menghitung tanggal ulang tahun berikutnya
+            LocalDate ulangTahunBerikutnya
+                    = helper.hariUlangTahunBerikutnya(lahir, sekarang);
+            String hariUlangTahunBerikutnya
+                    = helper.getDayOfWeekInIndonesian(ulangTahunBerikutnya);
 
-String tanggalUlangTahunBerikutnya =ulangTahunBerikutnya.format(formatter);
-txtHariUlangTahunBerikutnya.setText(hariUlangTahunBerikutnya + "(" + tanggalUlangTahunBerikutnya + ")");
-}
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+            String tanggalUlangTahunBerikutnya
+                    = ulangTahunBerikutnya.format(formatter);
+            txtHariUlangTahunBerikutnya.setText("(" + hariUlangTahunBerikutnya + " " + tanggalUlangTahunBerikutnya + ")");
+            // Set stop flag untuk thread sebelumnya
+            stopFetching = true;
+            if (peristiwaThread != null && peristiwaThread.isAlive()) {
+            peristiwaThread.interrupt(); // Beri sinyal ke thread untuk berhenti
+            }
+            // Reset flag untuk thread baru
+            stopFetching = false;
+            // Mendapatkan peristiwa penting secara asinkron
+            peristiwaThread = new Thread(() -> {
+            try {
+            txtAreaPeristiwa.setText("Tunggu, sedang mengambil data...\n");
+            helper.getPeristiwaBarisPerBaris(ulangTahunBerikutnya,
+            txtAreaPeristiwa, () -> stopFetching);
+            if (!stopFetching) {
+            javax.swing.SwingUtilities.invokeLater(() ->
+            txtAreaPeristiwa.append("Selesai mengambil data peristiwa"));
+            }
+            } catch (Exception e) {
+            if (Thread.currentThread().isInterrupted()) {
+            javax.swing.SwingUtilities.invokeLater(() ->
+            txtAreaPeristiwa.setText("Pengambilan data dibatalkan.\n"));
+            }
+            }
+        });
+            peristiwaThread.start();
+        }
 
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -154,10 +218,24 @@ txtHariUlangTahunBerikutnya.setText(hariUlangTahunBerikutnya + "(" + tanggalUlan
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jCalendarComboBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jCalendarComboBox1PropertyChange
+        // Hentikan thread yang sedang berjalan saat tanggal lahir berubah
+       stopFetching = true;
+        if (peristiwaThread != null && peristiwaThread.isAlive()) {
+        peristiwaThread.interrupt();
+        }
+        txtAreaPeristiwa.setText("");
         txtumur.setText("");
-        txtHariUlangTahunBerikutnya.setText("");        // TODO add your handling code here:
+        txtHariUlangTahunBerikutnya.setText("");
+        
+        // TODO add your handling code here:
     }//GEN-LAST:event_jCalendarComboBox1PropertyChange
 
+    private void jCalendarComboBox1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jCalendarComboBox1KeyTyped
+     txtAreaPeristiwa.setText("");
+        txtumur.setText("");
+        txtHariUlangTahunBerikutnya.setText("");     // TODO add your handling code here:
+    }//GEN-LAST:event_jCalendarComboBox1KeyTyped
+ 
     /**
      * @param args the command line arguments
      */
@@ -204,7 +282,9 @@ txtHariUlangTahunBerikutnya.setText(hariUlangTahunBerikutnya + "(" + tanggalUlan
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private de.wannawork.jcalendar.LocaleStrings localeStrings1;
+    private javax.swing.JTextArea txtAreaPeristiwa;
     private javax.swing.JTextField txtHariUlangTahunBerikutnya;
     private javax.swing.JTextField txtumur;
     // End of variables declaration//GEN-END:variables
